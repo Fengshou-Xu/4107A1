@@ -1,8 +1,8 @@
 import json
 
 # 假设TF表存储在'./tf_table.json'文件中
-file_path = './tf_tables.json'
-file_path1 = './idf_table.json'
+file_path = 'tf_tables.json'
+file_path1 = 'idf_table.json'
 output_name = 'tf_idf_table.json'
 output_dict = {}
 

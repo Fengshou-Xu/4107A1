@@ -25,6 +25,7 @@ def build_index_from_files(given_directory):
 
 print("Current Working Directory:", os.getcwd())
 directory = "../4107_output/"
+# directory = "../processed_coll"
 index = build_index_from_files(directory)
 serializable_inverted_index = {word: list(doc_ids) for word, doc_ids in index.items()}
 with open('inverted_index.json', 'w') as json_file:

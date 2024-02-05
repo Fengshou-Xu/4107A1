@@ -14,7 +14,7 @@ stop_words = set(requests.get(stop_words_url).text.splitlines())
 
 def preprocess_text_spacy(text):
     doc = nlp(text)
-    filtered_tokens = [token.text.lower() for token in doc if token.text.lower() not in stop_words and token.is_alpha]
+    filtered_tokens = [token.lemma_.lower() for token in doc if token.text.lower() not in stop_words and token.is_alpha]
     return filtered_tokens
 
 

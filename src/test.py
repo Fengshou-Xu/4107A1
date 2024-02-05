@@ -81,9 +81,65 @@ query_tfidf_vector = {}
 for word in processed_text:
     word_tf = query_tf_table.get(word)
     word_idf = idf_table.get(word,0)
-    print(word, word_tf, word_idf)
-    query_tfidf_vector[word] = word_tf * word_idf
+    max_query_freq = max(query_tf_table.values())
+    print(word, word_tf, word_idf, max_query_freq)
+    query_tfidf_vector[word] = (word_tf/max_query_freq) * word_idf
 
 print(query_tfidf_vector)
+
+with open('inverted_index.json', 'r') as idf_vector_file:
+    inverted_index = json.load(idf_vector_file)
+
+relate_doc = set()
+for word in processed_text:
+    if word in inverted_index:
+        relate_doc.update(inverted_index[word])
+
+print(relate_doc, "\n" , len(relate_doc))
+
+with open('tf_idf_table.json' , 'r') as tfidf_table_file:
+    tf_idf_table = json.load(tfidf_table_file)
+
+relate_doc_tfidf = {}
+for doc in relate_doc:
+    relate_doc_tfidf[doc] = tf_idf_table.get(doc)
+
+dot_product = 0
+query_norm = 0
+doc_norm = 0
+cos_similarities = {}
+
+for doc in relate_doc:
+    with open('../4107_output/'+doc , 'r') as this_doc:
+        this_doc_content = this_doc.read()
+        this_doc_tfidf = relate_doc_tfidf[doc]
+        for word in processed_text:
+            if word in this_doc_content:
+                query_word_tfidf = query_tfidf_vector.get(word, 0)
+                doc_word_tfidf = this_doc_tfidf.get(word, 0)
+                dot_product += query_word_tfidf * doc_word_tfidf
+    for word in query_tfidf_vector:
+        query_norm += query_tfidf_vector.get(word) ** 2
+
+    for word in this_doc_tfidf:
+        doc_norm += this_doc_tfidf.get(word) ** 2
+
+    query_norm = query_norm ** 0.5
+    doc_norm = doc_norm ** 0.5
+
+    if query_norm == 0 or doc_norm == 0:
+        similarity = 0
+    else:
+        similarity = dot_product / (query_norm * doc_norm)
+    cos_similarities[doc] = similarity
+
+sorted_cos_similarities = sorted(cos_similarities.items(), key=lambda item: item[1], reverse=True)
+
+with open('cos_similarities.json', 'w') as cos_similarities_file:
+    for doc, value in sorted_cos_similarities:
+        cos_similarities_file.write( str(doc) + " : " + str(value) + "\n")
+
+
+
 
 
